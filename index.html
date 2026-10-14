@@ -1,0 +1,438 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>YatraDham | Find Your Stay</title>
+<style>
+:root{--g:#087f5b;--gd:#065c43;--p:#eff8f1;--ink:#17382b;--muted:#718078;--line:#dfe9e2;--bg:#f5f8f5;--red:#c53232}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,Helvetica,sans-serif}
+button,input,select{font:inherit}
+button{cursor:pointer}
+button:disabled{opacity:.45;cursor:not-allowed}
+header{height:72px;padding:0 5%;display:flex;align-items:center;justify-content:space-between;gap:15px;background:white;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px}
+.logo{height:39px;width:39px;display:grid;place-items:center;background:var(--g);color:white;border-radius:11px;font-size:22px}
+.brand small{display:block;font-size:10px;letter-spacing:2px;color:var(--muted);margin-top:3px}
+button.primary,button.secondary{border-radius:10px;padding:12px 15px;font-weight:750;border:1px solid var(--g)}
+.primary{background:var(--g);color:white}.primary:hover{background:var(--gd)}
+.secondary{background:white;color:var(--g)}
+.cart-count{padding:3px 8px;border-radius:20px;background:#e5f5e9;color:var(--g)}
+main{max-width:1200px;margin:auto;padding:35px 20px 55px}
+.eyebrow{color:var(--g);font-size:11px;letter-spacing:1.6px;font-weight:800;text-transform:uppercase}
+h1{font-size:clamp(29px,4vw,43px);letter-spacing:-1.2px;margin:12px 0}
+.intro p,.sub{font-size:13px;line-height:1.7;color:var(--muted)}
+.search-panel{margin-top:25px;padding:20px;background:white;border:1px solid var(--line);border-radius:17px;display:grid;grid-template-columns:1fr auto;gap:14px;align-items:end;box-shadow:0 8px 28px #163e2510}
+.field label{display:block;font-size:11px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.field input{width:100%;padding:14px;border:1px solid var(--line);border-radius:9px;background:#fcfefc;min-height:46px;outline:none}
+.field input:focus{border-color:var(--g)}
+.results-head{display:flex;align-items:end;justify-content:space-between;gap:15px;margin:35px 0 18px}
+.results-head h2{font-size:23px;margin:7px 0}
+.results-head p{font-size:13px;color:var(--muted);line-height:1.5}
+.tools{display:flex;gap:8px}
+.tools select{padding:10px;border:1px solid var(--line);border-radius:9px;background:white}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.card{background:white;border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;transition:.2s}
+.card:hover{transform:translateY(-2px);box-shadow:0 10px 25px #173b2910}
+.photo{height:195px;position:relative;background:#e4eee6}
+.photo img{width:100%;height:100%;object-fit:cover}
+.tag{position:absolute;top:12px;left:12px;background:#ffffffed;padding:7px 10px;border-radius:7px;font-size:11px;font-weight:800}
+.cardbody{padding:16px;display:flex;flex:1;flex-direction:column}
+.title-row{display:flex;align-items:start;justify-content:space-between;gap:8px}
+.title-row h3{font-size:16px;line-height:1.4;margin:0}
+.rating{background:var(--p);color:var(--g);padding:6px 8px;border-radius:7px;font-size:12px;font-weight:800;white-space:nowrap}
+.location{font-size:12px;color:var(--muted);line-height:1.6;margin:9px 0 13px}
+.facilities{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:13px}
+.facility{font-size:11px;padding:7px 8px;border:1px solid var(--line);background:#fafcfa;border-radius:7px;color:#506459}
+/* NO PRICE IN LISTING CARDS */
+.availability-summary{display:flex;align-items:center;gap:8px;padding:12px 0 4px;margin-top:auto;font-size:12px;font-weight:700;color:var(--g)}
+.dot{width:8px;height:8px;display:inline-block;flex-shrink:0;border-radius:50%;background:#159447}
+.dot.red{background:var(--red)}
+.availability-summary.sold{color:var(--red)}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.actions button{padding:11px 6px;font-size:12px}
+.empty{grid-column:1/-1;background:white;text-align:center;padding:40px 20px;border:1px dashed #cbd9cf;border-radius:14px;color:var(--muted);line-height:1.8}
+footer{text-align:center;padding:25px 12px;font-size:11px;color:#89968e}
+
+/* Mandatory date popup */
+.overlay{display:none;position:fixed;inset:0;z-index:50;background:#102a20b8;backdrop-filter:blur(5px);align-items:center;justify-content:center;padding:16px}
+.overlay.show{display:flex}
+.modal{width:min(500px,100%);background:white;border-radius:18px;overflow:hidden}
+.modalhead{padding:23px;background:#edf8f0;border-bottom:1px solid var(--line)}
+.modalhead h2{margin:8px 0;font-size:25px}
+.modalhead p{font-size:13px;line-height:1.6;color:var(--muted);margin:0}
+.modalbody{padding:22px}
+.dategrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modalbody .field{margin-bottom:15px}
+.modalbody .primary{width:100%;margin-top:6px}
+.error{display:none;color:var(--red);font-size:12px;margin-top:12px}.error.show{display:block}
+
+/* Detail view */
+.detail{display:none;position:fixed;inset:0;z-index:30;background:var(--bg);overflow:auto}
+.detail.show{display:block}
+.detailnav{position:sticky;top:0;background:white;border-bottom:1px solid var(--line);padding:12px 5%;display:flex;justify-content:space-between;align-items:center;gap:10px;z-index:2}
+.detailwrap{max-width:1050px;margin:25px auto;padding:0 18px 45px}
+.hero{display:grid;grid-template-columns:1.25fr 1fr;gap:18px}
+.herophoto{height:320px;border-radius:15px;overflow:hidden;background:#e5eee7}
+.herophoto img{width:100%;height:100%;object-fit:cover}
+.panel{background:white;border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px}
+.summary h1{font-size:27px;line-height:1.25}
+.summary p{font-size:13px;line-height:1.7;color:var(--muted)}
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:17px}
+.fact{padding:12px;background:#f5f8f5;border-radius:9px}
+.fact small{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;margin-bottom:6px}
+.fact strong{font-size:13px}
+.columns{display:grid;grid-template-columns:1.5fr .8fr;gap:18px;margin-top:18px}
+.panel h2{font-size:20px;margin:0 0 8px}
+.room{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:14px}
+.roomhead{padding:13px;background:#fafcfa;display:flex;justify-content:space-between;align-items:start;gap:12px}
+.roomhead h3{font-size:14px;margin:0 0 6px}
+.roomhead p{font-size:11px;color:var(--muted);line-height:1.5;margin:0}
+.pricebox{min-width:130px;text-align:right;padding:10px;border:1px solid #d1e7d7;background:#f1f9f3;border-radius:11px}
+.pricebox .label{font-size:10px;color:var(--muted);font-weight:800;letter-spacing:.7px;text-transform:uppercase}
+.pricebox strong{display:block;color:var(--g);font-size:21px;margin:5px 0}
+.pricebox small{display:block;font-size:11px;color:var(--muted);line-height:1.5}
+.dateboxes{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:12px}
+.datebox{border:1px solid #b7e2c3;background:#effaf2;border-radius:9px;padding:12px}
+.datebox.sold{border-color:#efc2c2;background:#fff1f0}
+.status{font-size:11px;font-weight:800}
+.datebox.sold .status{color:var(--red)}
+.datebox:not(.sold) .status{color:var(--g)}
+.datebox .date{font-size:11px;color:var(--muted);margin:8px 0}
+.datebox .amount{font-weight:800;font-size:15px}
+.datebox .amount small{font-size:10px;font-weight:400}
+.roomactions{display:flex;gap:8px;padding:0 12px 13px}
+.roomactions button{flex:1;font-size:12px}
+.note{font-size:11px;color:#80602d;background:#fff8e8;padding:12px;border-radius:9px;line-height:1.6;margin-top:12px}
+.info{padding:12px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.6}
+.info:last-child{border:0}
+
+/* Cart */
+.cartoverlay{display:none;position:fixed;inset:0;z-index:70;background:#102a2080;align-items:center;justify-content:center;padding:15px}
+.cartoverlay.show{display:flex}
+.cartmodal{width:min(550px,100%);max-height:85vh;overflow:auto;background:white;border-radius:17px;padding:22px}
+.cartitem{border:1px solid var(--line);border-radius:11px;padding:13px;margin:12px 0}
+.cartitemtop{display:flex;justify-content:space-between;gap:10px}
+.cartitem p{font-size:12px;line-height:1.6;color:var(--muted)}
+.remove{border:0;background:#fff0ef;color:var(--red);border-radius:7px;padding:8px;height:fit-content}
+.total{padding:15px;background:#eff8f1;border:1px solid #d1e7d7;border-radius:11px;margin:15px 0}
+.total strong{font-size:24px;color:var(--g)}
+.toast{position:fixed;bottom:20px;left:50%;transform:translate(-50%,20px);opacity:0;pointer-events:none;z-index:100;background:#173c2c;color:white;padding:13px 18px;border-radius:10px;font-size:13px;transition:.2s;max-width:90%;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:850px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hero,.columns{grid-template-columns:1fr}.herophoto{height:270px}}
+@media(max-width:560px){header{padding:0 13px}.brand{font-size:17px}.logo{width:34px;height:34px}.demo{display:none}main{padding:25px 13px 40px}.search-panel{grid-template-columns:1fr;padding:14px}.grid{grid-template-columns:1fr}.photo{height:215px}.results-head{align-items:flex-start;flex-direction:column}.tools{width:100%}.tools select{flex:1;min-width:0}.dategrid,.dateboxes{grid-template-columns:1fr}.detailnav{padding:10px}.detailnav .brand{font-size:14px}.detailnav .brand small{font-size:8px}.detailwrap{padding:0 12px 30px;margin-top:14px}.herophoto{height:220px}.panel{padding:15px}.roomhead{flex-direction:column}.pricebox{min-width:150px;text-align:left}.roomactions{flex-direction:column}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand"><div class="logo">ॐ</div><div>YatraDham<small>STAY FINDER</small></div></div>
+  <div style="display:flex;align-items:center;gap:12px">
+    <span class="demo" style="font-size:11px;color:var(--muted)">Sample inventory · Demo</span>
+    <button class="secondary" id="cartBtn">Cart <span class="cart-count" id="cartCount">0</span></button>
+  </div>
+</header>
+
+<main>
+  <section>
+    <div class="eyebrow">Your pilgrimage, comfortably planned</div>
+    <h1>Find your stay near the sacred.</h1>
+    <p class="sub">Search your destination first. Select your dates next, then explore properties and room availability.</p>
+  </section>
+
+  <!-- FIRST SCREEN: CITY SEARCH ONLY -->
+  <section class="search-panel">
+    <div class="field">
+      <label for="cityInput">Search destination city</label>
+      <input id="cityInput" list="cities" placeholder="Enter a city, e.g. Dwarka" autocomplete="off">
+      <datalist id="cities">
+        <option>Dwarka</option><option>Vrindavan</option><option>Ujjain</option>
+        <option>Haridwar</option><option>Puri</option><option>Somnath</option><option>Tirupati</option>
+      </datalist>
+    </div>
+    <button class="primary" id="searchBtn">Search City →</button>
+  </section>
+
+  <div class="results-head">
+    <div><div class="eyebrow" id="eyebrow">GET STARTED</div><h2 id="resultsTitle">Where would you like to go?</h2><p id="resultsSub">Search a city to continue.</p></div>
+    <div class="tools" id="tools" hidden>
+      <select id="filter"><option value="all">All properties</option><option value="available">Rooms available</option></select>
+      <select id="sort"><option value="recommended">Recommended</option><option value="low">Price: low to high</option><option value="high">Price: high to low</option></select>
+    </div>
+  </div>
+  <section class="grid" id="grid">
+    <div class="empty"><strong>Start by searching for a city.</strong><br>Choose your dates next to explore sample properties.</div>
+  </section>
+  <footer>Sample demonstration only. Property information, ratings and availability are not live.</footer>
+</main>
+
+<!-- Dates are requested only AFTER the city is searched. No close button. -->
+<div class="overlay" id="dateOverlay" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modalhead">
+      <div class="eyebrow">Your journey starts here</div>
+      <h2 id="dateTitle">Select your travel dates</h2>
+      <p id="dateDescription">Choose check-in and check-out dates to see available stays.</p>
+    </div>
+    <div class="modalbody">
+      <div class="dategrid">
+        <div class="field"><label for="checkIn">Check-in date</label><input type="date" id="checkIn" required></div>
+        <div class="field"><label for="checkOut">Check-out date</label><input type="date" id="checkOut" required></div>
+      </div>
+      <p class="sub">Both dates are required to view property details and prices.</p>
+      <button class="primary" id="continueBtn">Show available stays →</button>
+      <div class="error" id="dateError">Select valid dates. Check-out must be after check-in.</div>
+    </div>
+  </div>
+</div>
+
+<!-- Property detail view -->
+<div class="detail" id="detail">
+  <div class="detailnav">
+    <button class="secondary" id="backBtn">← Back to stays</button>
+    <div class="brand"><div class="logo">ॐ</div><div>YatraDham<small>PROPERTY DETAILS</small></div></div>
+    <button class="secondary" id="detailCartBtn">Cart <span class="cart-count" id="detailCartCount">0</span></button>
+  </div>
+  <div class="detailwrap" id="detailContent"></div>
+</div>
+
+<!-- Cart -->
+<div class="cartoverlay" id="cartOverlay" role="dialog" aria-modal="true">
+  <div class="cartmodal">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+      <div><div class="eyebrow">Your selections</div><h2 style="margin:7px 0">My Cart</h2></div>
+      <button class="secondary" id="closeCart">Close</button>
+    </div>
+    <p class="sub">Review selected rooms and the estimated total.</p>
+    <div id="cartItems"></div><div id="cartSummary"></div>
+    <p class="sub">Demo only. No reservation or payment is made.</p>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const PHOTOS={
+  room:"https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=1200&q=85",
+  temple:"https://images.unsplash.com/photo-1606293926075-69a00db0f2ce?auto=format&fit=crop&w=1200&q=85",
+  vrindavan:"https://images.unsplash.com/photo-1561361513-2d000a50f0dc?auto=format&fit=crop&w=1200&q=85",
+  ujjain:"https://images.unsplash.com/photo-1564769662533-4f00a87b4056?auto=format&fit=crop&w=1200&q=85",
+  puri:"https://images.unsplash.com/photo-1609920658906-8223bd289001?auto=format&fit=crop&w=1200&q=85"
+};
+
+/* Fictional sample inventory for demonstration */
+const properties=[
+{id:1,name:"Shree Dwarkadhish Seva Sadan",city:"Dwarka",area:"Near Dwarkadhish Temple · 450 m",rating:4.6,reviews:328,photo:PHOTOS.temple,type:"Temple trust stay",tags:["Family rooms","Parking","Hot water","Lift"],checkin:"11:00 AM",checkout:"09:00 AM",facilities:["Drinking water","CCTV in common areas","Help desk","Family-friendly"],rooms:[
+{name:"Non-AC Standard Room",desc:"2 guests · Double bed · Attached bathroom",price:950,stock:3},
+{name:"AC Deluxe Room",desc:"2 guests · Double bed · Attached bathroom",price:1650,stock:2},
+{name:"Family Room",desc:"4 guests · 2 beds · Attached bathroom",price:2200,stock:0}]},
+{id:2,name:"Shree Krishna Dham",city:"Dwarka",area:"Railway Station Road · 800 m",rating:4.4,reviews:214,photo:PHOTOS.room,type:"Dharmashala",tags:["AC rooms","Restaurant","Parking"],checkin:"12:00 PM",checkout:"10:00 AM",facilities:["In-house dining","Parking","Hot water","Family rooms"],rooms:[
+{name:"Economy Non-AC Room",desc:"2 guests · Double bed",price:700,stock:0},
+{name:"AC Double Room",desc:"2 guests · Double bed · Attached bathroom",price:1400,stock:4},
+{name:"Four-Bed Family Room",desc:"4 guests · 4 single beds",price:1900,stock:1}]},
+{id:3,name:"Seva Jyoti Bhavan",city:"Dwarka",area:"Bhadrakali Chowk · 1.1 km",rating:4.2,reviews:176,photo:PHOTOS.temple,type:"Bhavan",tags:["Budget stay","Lift","Drinking water"],checkin:"10:00 AM",checkout:"09:00 AM",facilities:["Drinking water","Lift","Cloakroom","Reception"],rooms:[
+{name:"Basic Non-AC Room",desc:"2 guests · 2 single beds",price:550,stock:5},
+{name:"AC Comfort Room",desc:"2 guests · Double bed",price:1250,stock:0}]},
+{id:4,name:"Vrindavan Bhakti Nivas",city:"Vrindavan",area:"Near Banke Bihari area · 900 m",rating:4.5,reviews:291,photo:PHOTOS.vrindavan,type:"Dharmashala",tags:["Family rooms","Lift","Hot water"],checkin:"12:00 PM",checkout:"10:00 AM",facilities:["Lift","Hot water","Family rooms","Water purifier"],rooms:[
+{name:"Standard Non-AC Room",desc:"2 guests · Double bed",price:850,stock:2},
+{name:"AC Premium Room",desc:"2 guests · Double bed",price:1550,stock:0},
+{name:"Group Room",desc:"4 guests · 4 single beds",price:1800,stock:3}]},
+{id:5,name:"Yamuna Seva Bhavan",city:"Vrindavan",area:"Parikrama Marg · 1.3 km",rating:4.1,reviews:143,photo:PHOTOS.room,type:"Bhavan",tags:["Budget stay","Parking","Water"],checkin:"11:00 AM",checkout:"10:00 AM",facilities:["Parking","Drinking water","Reception","Family rooms"],rooms:[
+{name:"Budget Double Room",desc:"2 guests · Double bed",price:600,stock:0},
+{name:"Standard Family Room",desc:"4 guests · 2 double beds",price:1350,stock:2}]},
+{id:6,name:"Mahakal Atithi Sadan",city:"Ujjain",area:"Mahakaleshwar Temple · 700 m",rating:4.7,reviews:402,photo:PHOTOS.ujjain,type:"Atithi Sadan",tags:["Temple nearby","Lift","Hot water"],checkin:"11:00 AM",checkout:"10:00 AM",facilities:["Lift","Hot water","Drinking water","Help desk"],rooms:[
+{name:"Non-AC Double Room",desc:"2 guests · Double bed",price:900,stock:2},
+{name:"AC Deluxe Room",desc:"2 guests · Double bed",price:1750,stock:3},
+{name:"Four-Bed Room",desc:"4 guests · 4 single beds",price:2100,stock:0}]},
+{id:7,name:"Har Ki Pauri Yatri Niwas",city:"Haridwar",area:"Har Ki Pauri · 600 m",rating:4.3,reviews:236,photo:PHOTOS.temple,type:"Yatri Niwas",tags:["Ghat nearby","Family rooms","Parking"],checkin:"12:00 PM",checkout:"10:00 AM",facilities:["Family rooms","Drinking water","Parking","Reception"],rooms:[
+{name:"Standard Non-AC Room",desc:"2 guests · Double bed",price:800,stock:4},
+{name:"AC Double Room",desc:"2 guests · Double bed",price:1450,stock:0}]},
+{id:8,name:"Jagannath Pilgrim Stay",city:"Puri",area:"Grand Road · 1 km",rating:4.4,reviews:318,photo:PHOTOS.puri,type:"Pilgrim lodge",tags:["Family rooms","Lift","Restaurant"],checkin:"11:00 AM",checkout:"09:00 AM",facilities:["Restaurant nearby","Lift","Water purifier","Family rooms"],rooms:[
+{name:"Classic Double Room",desc:"2 guests · Double bed",price:1000,stock:2},
+{name:"AC Comfort Room",desc:"2 guests · Double bed",price:1800,stock:2}]},
+{id:9,name:"Somnath Sagar Seva Gruh",city:"Somnath",area:"Temple Road · 500 m",rating:4.5,reviews:255,photo:PHOTOS.temple,type:"Seva Gruh",tags:["Temple nearby","Parking","Hot water"],checkin:"11:00 AM",checkout:"10:00 AM",facilities:["Parking","Hot water","Drinking water","Family rooms"],rooms:[
+{name:"Non-AC Standard Room",desc:"2 guests · Double bed",price:750,stock:3},
+{name:"AC Deluxe Room",desc:"2 guests · Double bed",price:1500,stock:1}]},
+{id:10,name:"Tirupati Yatri Comforts",city:"Tirupati",area:"Tirupati town · 2 km",rating:4.2,reviews:187,photo:PHOTOS.room,type:"Yatri Niwas",tags:["Budget stay","Bus access","Family rooms"],checkin:"12:00 PM",checkout:"10:00 AM",facilities:["Bus access","Drinking water","Family rooms","Reception"],rooms:[
+{name:"Standard Double Room",desc:"2 guests · Double bed",price:900,stock:3},
+{name:"AC Family Room",desc:"4 guests · 2 double beds",price:1900,stock:0}]}
+];
+
+const $=id=>document.getElementById(id);
+let city="",checkIn="",checkOut="",cart=[];
+const money=n=>"₹"+Number(n).toLocaleString("en-IN");
+const nights=()=>Math.max(1,Math.round((new Date(checkOut+"T12:00:00")-new Date(checkIn+"T12:00:00"))/86400000));
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function iso(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;}
+function plusDay(s,n){const d=new Date(s+"T12:00:00");d.setDate(d.getDate()+n);return iso(d);}
+function dateLabel(s){return new Date(s+"T12:00:00").toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"});}
+function toast(s){const el=$("toast");el.textContent=s;el.classList.add("show");clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove("show"),2500);}
+function hasRoom(p){return p.rooms.some(r=>r.stock>0);}
+function cheapest(p){const a=p.rooms.filter(r=>r.stock>0);return a.length?Math.min(...a.map(r=>r.price)):Infinity;}
+
+/* CITY SEARCH FIRST — dates are not shown until this runs */
+function searchCity(){
+ const entered=$("cityInput").value.trim();
+ if(!entered){toast("Please enter a city name first.");$("cityInput").focus();return;}
+ const known=properties.find(p=>p.city.toLowerCase()===entered.toLowerCase());
+ city=known?known.city:entered;
+ $("dateTitle").textContent="Plan your stay in "+city;
+ $("dateDescription").textContent="Select check-in and check-out dates to view stays and availability in "+city+".";
+ $("dateOverlay").classList.add("show");
+ $("dateError").classList.remove("show");
+}
+$("searchBtn").addEventListener("click",searchCity);
+$("cityInput").addEventListener("keydown",e=>{if(e.key==="Enter")searchCity();});
+const today=iso(new Date());
+$("checkIn").min=today;
+$("checkOut").min=plusDay(today,1);
+$("checkIn").addEventListener("change",()=>{
+ if($("checkIn").value){
+  $("checkOut").min=plusDay($("checkIn").value,1);
+  if($("checkOut").value<=$("checkIn").value)$("checkOut").value=plusDay($("checkIn").value,1);
+ }
+ $("dateError").classList.remove("show");
+});
+$("checkOut").addEventListener("change",()=>$("dateError").classList.remove("show"));
+$("continueBtn").addEventListener("click",()=>{
+ const a=$("checkIn").value,b=$("checkOut").value;
+ if(!a||!b||a<iso(new Date())||b<=a){$("dateError").classList.add("show");return;}
+ checkIn=a;checkOut=b;$("dateOverlay").classList.remove("show");renderCards();
+});
+
+/* LISTING CARDS: no price is displayed anywhere */
+function renderCards(){
+ let list=properties.filter(p=>p.city.toLowerCase()===city.toLowerCase());
+ if($("filter").value==="available")list=list.filter(hasRoom);
+ if($("sort").value==="low")list.sort((a,b)=>cheapest(a)-cheapest(b));
+ if($("sort").value==="high")list.sort((a,b)=>cheapest(b)-cheapest(a));
+ $("eyebrow").textContent="STAYS IN "+city.toUpperCase();
+ $("resultsTitle").textContent=list.length?`${list.length} stays to explore`:"No sample stays found";
+ $("resultsSub").textContent=`${dateLabel(checkIn)} – ${dateLabel(checkOut)} · ${nights()} night${nights()===1?"":"s"}.`;
+ $("tools").hidden=false;
+ if(!list.length){
+  $("grid").innerHTML=`<div class="empty"><strong>No demo properties found in ${esc(city)}.</strong><br>Try Dwarka, Vrindavan, Ujjain, Haridwar, Puri, Somnath or Tirupati.</div>`;
+  return;
+ }
+ $("grid").innerHTML=list.map(p=>`
+ <article class="card">
+  <div class="photo"><img src="${p.photo}" alt="${esc(p.name)}" onerror="this.onerror=null;this.src='${PHOTOS.room}'"><span class="tag">${esc(p.type)}</span></div>
+  <div class="cardbody">
+   <div class="title-row"><h3>${esc(p.name)}</h3><span class="rating">★ ${p.rating}</span></div>
+   <div class="location">⌖ ${esc(p.area)}, ${esc(p.city)}</div>
+   <div class="facilities">${p.tags.map(t=>`<span class="facility">${esc(t)}</span>`).join("")}</div>
+   <div class="availability-summary ${hasRoom(p)?"":"sold"}"><span class="dot ${hasRoom(p)?"":"red"}"></span>${hasRoom(p)?"Rooms available":"Currently sold out"}</div>
+   <div class="actions">
+    <button class="secondary" onclick="openDetails(${p.id})">View rooms</button>
+    <button class="primary" onclick="quickAdd(${p.id})" ${hasRoom(p)?"":"disabled"}>Add to Cart +</button>
+   </div>
+  </div>
+ </article>`).join("");
+}
+$("filter").addEventListener("change",renderCards);
+$("sort").addEventListener("change",renderCards);
+
+/* DETAILS: room prices live only inside boxed room/date information */
+function openDetails(id){
+ const p=properties.find(x=>x.id===id);if(!p)return;
+ $("detailContent").innerHTML=`
+ <div class="hero">
+  <div class="herophoto"><img src="${p.photo}" alt="${esc(p.name)}" onerror="this.onerror=null;this.src='${PHOTOS.room}'"></div>
+  <div class="panel summary">
+   <div class="eyebrow">${esc(p.type)}</div><h1>${esc(p.name)}</h1>
+   <div class="location">⌖ ${esc(p.area)}, ${esc(p.city)}</div>
+   <p>★ <strong>${p.rating}</strong> · ${p.reviews} sample reviews</p>
+   <p>A convenient sample stay for pilgrims and families visiting nearby sacred places.</p>
+   <div class="facts">
+    <div class="fact"><small>Check-in</small><strong>${p.checkin}</strong></div>
+    <div class="fact"><small>Check-out</small><strong>${p.checkout}</strong></div>
+    <div class="fact"><small>Your dates</small><strong>${dateLabel(checkIn)} – ${dateLabel(checkOut)}</strong></div>
+    <div class="fact"><small>Duration</small><strong>${nights()} night${nights()===1?"":"s"}</strong></div>
+   </div>
+  </div>
+ </div>
+ <div class="columns">
+  <section class="panel">
+   <h2>Rooms & availability</h2><p class="sub">Green means available; red means sold out. Prices are shown only inside the room boxes.</p>
+   ${p.rooms.map((r,i)=>{
+    const sold=r.stock===0,total=r.price*nights();
+    return `<div class="room">
+     <div class="roomhead">
+      <div><h3>${esc(r.name)}</h3><p>${esc(r.desc)}</p></div>
+      <div class="pricebox"><span class="label">Per night</span><strong>${money(r.price)}</strong><small>${nights()} night${nights()===1?"":"s"} · Total ${money(total)}</small></div>
+     </div>
+     <div class="dateboxes">
+      <div class="datebox ${sold?"sold":""}">
+       <div class="status">${sold?"● SOLD OUT":"● AVAILABLE"}</div>
+       <div class="date">${dateLabel(checkIn)} · Check-in</div>
+       <div class="amount">${sold?"No rooms":money(r.price)+( ' <small>/ night</small>')}</div>
+      </div>
+      <div class="datebox ${sold?"sold":""}">
+       <div class="status">${sold?"● SOLD OUT":"● AVAILABLE"}</div>
+       <div class="date">${dateLabel(checkOut)} · Check-out</div>
+       <div class="amount">${sold?"No rooms":money(r.price)+( ' <small>/ night</small>')}</div>
+      </div>
+     </div>
+     <div class="roomactions">
+      <button class="secondary" onclick="addRoom(${p.id},${i})" ${sold?"disabled":""}>Add to Cart +</button>
+      <button class="primary" onclick="bookDemo(${p.id},${i})" ${sold?"disabled":""}>Book Now →</button>
+     </div>
+    </div>`;
+   }).join("")}
+   <div class="note">Sample inventory only. A real booking system must verify availability for every night of the selected date range.</div>
+  </section>
+  <aside>
+   <section class="panel"><h2>Property information</h2>
+    <div class="info"><strong>Property type</strong><br>${esc(p.type)}</div>
+    <div class="info"><strong>Location</strong><br>${esc(p.area)}, ${esc(p.city)}</div>
+    <div class="info"><strong>Check-in / Check-out</strong><br>${p.checkin} / ${p.checkout}</div>
+   </section>
+   <section class="panel"><h2>Facilities</h2><div class="facilities">${p.facilities.map(f=>`<span class="facility">✓ ${esc(f)}</span>`).join("")}</div></section>
+  </aside>
+ </div>`;
+ $("detail").classList.add("show");$("detail").scrollTop=0;
+}
+$("backBtn").addEventListener("click",()=>$("detail").classList.remove("show"));
+
+/* CART */
+function addRoom(pid,ri){
+ const p=properties.find(x=>x.id===pid),r=p?.rooms[ri];
+ if(!p||!r||r.stock<1){toast("This room is sold out in the demo.");return;}
+ if(cart.some(x=>x.pid===pid&&x.ri===ri&&x.ci===checkIn&&x.co===checkOut)){
+  toast("This room is already in your cart for these dates.");return;
+ }
+ cart.push({pid,ri,ci:checkIn,co:checkOut,n:nights(),price:r.price,name:p.name,room:r.name});
+ updateCart();toast("Room added to your cart.");
+}
+function quickAdd(pid){
+ const p=properties.find(x=>x.id===pid),r=p?.rooms.filter(x=>x.stock>0).sort((a,b)=>a.price-b.price)[0];
+ if(!r){toast("No available sample rooms.");return;}
+ addRoom(pid,p.rooms.indexOf(r));
+}
+function bookDemo(pid,ri){addRoom(pid,ri);toast("Demo only: your room is not reserved.");}
+function removeItem(i){cart.splice(i,1);updateCart();}
+function updateCart(){
+ $("cartCount").textContent=cart.length;$("detailCartCount").textContent=cart.length;
+ if(!cart.length){
+  $("cartItems").innerHTML='<div class="empty">Your cart is empty.<br>Add a room to see it here.</div>';
+  $("cartSummary").innerHTML="";return;
+ }
+ $("cartItems").innerHTML=cart.map((x,i)=>`
+  <div class="cartitem">
+   <div class="cartitemtop"><div><strong>${esc(x.name)}</strong><p>${esc(x.room)}</p></div><button class="remove" onclick="removeItem(${i})">Remove</button></div>
+   <p>${dateLabel(x.ci)} – ${dateLabel(x.co)} · ${x.n} night${x.n===1?"":"s"}</p>
+   <div class="pricebox" style="display:inline-block;text-align:left"><span class="label">Room total</span><strong>${money(x.price*x.n)}</strong><small>${money(x.price)} per night</small></div>
+  </div>`).join("");
+ const total=cart.reduce((s,x)=>s+x.price*x.n,0);
+ $("cartSummary").innerHTML=`<div class="total"><div class="eyebrow">Estimated cart total</div><strong>${money(total)}</strong><p class="sub">${cart.length} selected room${cart.length===1?"":"s"}. Taxes/fees not included.</p></div><button class="primary" style="width:100%" onclick="toast('Demo only: no booking or payment has been made.')">Continue (Demo) →</button>`;
+}
+function openCart(){updateCart();$("cartOverlay").classList.add("show");}
+$("cartBtn").addEventListener("click",openCart);
+$("detailCartBtn").addEventListener("click",openCart);
+$("closeCart").addEventListener("click",()=>$("cartOverlay").classList.remove("show"));
+$("cartOverlay").addEventListener("click",e=>{if(e.target===$("cartOverlay"))$("cartOverlay").classList.remove("show");});
+updateCart();
+</script>
+</body>
+</html>
